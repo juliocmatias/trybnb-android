@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/reservation_menu_item"
+        android:icon="@drawable/ic_reservation"
+        android:title="@string/bot_nav_reservation" />
+
+    <item
+        android:id="@+id/create_reservation_menu_item"
+        android:icon="@drawable/ic_create_reservation"
+        android:title="@string/bot_nav_create_reservation" />
+
+    <item
+        android:id="@+id/profile_menu_item"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/bot_nav_profile" />
+</menu>
