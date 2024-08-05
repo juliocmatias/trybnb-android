@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        changeFragmentMenu(profileFragment)
+        bottomNavigation.selectedItemId = R.id.profile_menu_tem
+
         bottomNavigation.setOnItemSelectedListener {
             when(it.itemId) {
                 R.id.reservation_menu_item -> {

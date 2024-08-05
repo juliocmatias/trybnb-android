@@ -4,4 +4,5 @@
     <color name="navigation">#3C5A4E</color>
     <color name="depositpaid">#92FD8A</color>
     <color name="not_depositpaid">#FD8A8A</color>
+    <color name="red">#D50000</color>
 </resources>

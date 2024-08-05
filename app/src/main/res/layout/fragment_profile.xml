@@ -33,7 +33,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:hint="@string/profile_login"
-            app:endIconDrawable="@drawable/ic_login">
+            app:endIconDrawable="@drawable/ic_login"
+            app:endIconMode="custom"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -50,12 +52,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:hint="@string/profile_password"
-            app:endIconDrawable="@drawable/ic_password">
+            app:endIconMode="password_toggle"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:textColorHint="#546E7A"
                 tools:ignore="VisualLintTextFieldSize,TextContrastCheck" />
 
