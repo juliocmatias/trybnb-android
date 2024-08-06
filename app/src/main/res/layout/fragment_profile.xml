@@ -68,13 +68,29 @@
             android:id="@+id/login_button_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:hint="@string/profile_login"
+            android:text="@string/profile_login"
+            android:textColor="@color/white"
             android:layout_gravity="center"
             tools:ignore="VisualLintButtonSize"
             />
+
+        <FrameLayout
+            android:id="@+id/waiting_response_state"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/waiting_response_progress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                />
+
+        </FrameLayout>
 
     </LinearLayout>
 
