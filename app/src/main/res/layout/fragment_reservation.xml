@@ -14,4 +14,20 @@
         tools:listitem="@layout/list_item_reservation"
         />
 
+    <FrameLayout
+        android:id="@+id/waiting_response_frame_layout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/waiting_response_progress_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            />
+
+    </FrameLayout>
+
 </FrameLayout>
