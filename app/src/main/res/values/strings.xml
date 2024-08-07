@@ -11,9 +11,16 @@
     <string name="check_out">Checkout</string>
     <string name="date_check_in">DD-MM-AAAA</string>
     <string name="guest_name">Nome do Hóspede</string>
+    <string name="guest_first_name">Nome do hóspede</string>
+    <string name="guest_second_name">Sobrenome do hóspede</string>
     <string name="guest_first_second_name">Primeiro Nome + Segundo Nome</string>
     <string name="guest_add_info">Informações Adicionais</string>
     <string name="info_add_guest">Informações Adicionais do Hóspede</string>
+    <string name="additional_needs_create">Necessidades adicionais</string>
     <string name="currency_sign">R$ </string>
     <string name="total_price">0.00</string>
+    <string name="title_create_guest">Criar Reserva</string>
+    <string name="price_total">Preço total</string>
+    <string name="deposit_paid_create">Depósito Pago</string>
+    <string name="button_create_reservation">Criar Reserva</string>
 </resources>
