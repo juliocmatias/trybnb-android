@@ -37,10 +37,10 @@ class ReservationAdapter(
             }
             depositpaidImageInfo.setImageResource(depositPaidImage)
             "${booking.firstname} ${booking.lastname}".also { guestNameTextView.text = it }
-            checkinTextView.text = booking.bookingdates.checkIn
-            checkoutTextView.text = booking.bookingdates.checkOut
+            checkinTextView.text = booking.bookingdates.checkin
+            checkoutTextView.text = booking.bookingdates.checkout
             additionalNeedsTextView.text = booking.additionalneeds
-            val totalPrice = String.format(Locale.getDefault(), "%.2f", booking.totalprice)
+            val totalPrice = String.format(Locale.getDefault(), "%.2f", booking.totalprice.toFloat())
             totalpriceTextView.text = totalPrice
         }
     }
