@@ -6,4 +6,14 @@
     <string name="profile_login">Login</string>
     <string name="profile_password">Password</string>
     <string name="helper_text_login">O campo Login é obrigatório</string>
+    <string name="deposit_paid">Status de depósito da reserva</string>
+    <string name="check_in">Checkin</string>
+    <string name="check_out">Checkout</string>
+    <string name="date_check_in">DD-MM-AAAA</string>
+    <string name="guest_name">Nome do Hóspede</string>
+    <string name="guest_first_second_name">Primeiro Nome + Segundo Nome</string>
+    <string name="guest_add_info">Informações Adicionais</string>
+    <string name="info_add_guest">Informações Adicionais do Hóspede</string>
+    <string name="currency_sign">R$ </string>
+    <string name="total_price">0.00</string>
 </resources>
