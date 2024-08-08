@@ -25,4 +25,10 @@ interface OpenBookingServiceApi {
     suspend fun getBookingById(
         @Path("id") id: String
     ) : Response<BookingData>
+
+    @Headers ("Content-Type: application/json", "Accept: application/json")
+    @POST("booking")
+    suspend fun createBooking(
+        @Body body: BookingData
+    ) : Response<BookingData>
 }

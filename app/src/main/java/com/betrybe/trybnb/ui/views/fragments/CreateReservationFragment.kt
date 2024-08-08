@@ -1,16 +1,27 @@
 package com.betrybe.trybnb.ui.views.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.FrameLayout
 import androidx.core.widget.addTextChangedListener
 import com.betrybe.trybnb.R
+import com.betrybe.trybnb.common.ApiIdlingResource
+import com.betrybe.trybnb.data.models.BookingData
+import com.betrybe.trybnb.data.models.BookingDates
+import com.betrybe.trybnb.data.repository.OpenBookingService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 class CreateReservationFragment : Fragment() {
 
@@ -22,6 +33,9 @@ class CreateReservationFragment : Fragment() {
     private lateinit var totalPriceTextInputLayout: TextInputLayout
     private lateinit var depositPaidCheckbox: CheckBox
     private lateinit var btnCreateBookingMaterialButton: MaterialButton
+    private lateinit var waitingResponseStateCreateLayout: FrameLayout
+
+    private val bookingServiceApi = OpenBookingService.instance
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +56,7 @@ class CreateReservationFragment : Fragment() {
         totalPriceTextInputLayout = view.findViewById(R.id.total_price_create_reservation)
         depositPaidCheckbox = view.findViewById(R.id.depositpaid_create_reservation)
         btnCreateBookingMaterialButton = view.findViewById(R.id.create_reservation_button)
+        waitingResponseStateCreateLayout = view.findViewById(R.id.waiting_response_state_create)
     }
 
     override fun onStart() {
@@ -55,23 +70,75 @@ class CreateReservationFragment : Fragment() {
         setupTextInputLayoutListener(totalPriceTextInputLayout)
 
         btnCreateBookingMaterialButton.setOnClickListener {
-            val firstName = firstNameTextInputLayout.editText?.text.toString()
-            val lastName = lastNameTextInputLayout.editText?.text.toString()
+            val firstname = firstNameTextInputLayout.editText?.text.toString()
+            val lastname = lastNameTextInputLayout.editText?.text.toString()
             val checkInString = checkInTextInputLayout.editText?.text.toString()
             val checkOutString = checkOutTextInputLayout.editText?.text.toString()
-            val additionalNeeds = additionalNeedsTextInputLayout.editText?.text.toString()
-            val totalPrice = totalPriceTextInputLayout.editText?.text.toString()
+            val additionalneeds = additionalNeedsTextInputLayout.editText?.text.toString()
+            val totalprice = totalPriceTextInputLayout.editText?.text.toString()
+            val depositpaid = depositPaidCheckbox.isChecked
 
             val isValidBooking = validateCreateBooking(
-                firstName,
-                lastName,
+                firstname,
+                lastname,
                 checkInString,
                 checkOutString,
-                additionalNeeds,
-                totalPrice)
+                additionalneeds,
+                totalprice)
 
             if (isValidBooking) {
-                showSnack("Reserva feita com sucesso!")
+
+                showProgress()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        ApiIdlingResource.increment()
+
+                        val bookingdates = BookingDates(
+                            checkInString,
+                            checkOutString
+                        )
+
+                        val bodyRequest = BookingData(
+                            firstname,
+                            lastname,
+                            totalprice.toInt(),
+                            depositpaid,
+                            bookingdates,
+                            additionalneeds
+                        )
+
+                        val response = bookingServiceApi.createBooking(bodyRequest)
+
+                        if (response.isSuccessful) {
+                            withContext(Dispatchers.Main) {
+                                val status = response.message().toString()
+
+                                if (status == "OK") {
+                                    hideProgress()
+                                    showSnack("Reserva feita com sucesso!")
+                                } else {
+                                    hideProgress()
+                                    showSnack("Erro ao criar reserva")
+                                }
+
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                hideProgress()
+                                showSnack("Erro ao criar reserva")
+                            }
+                        }
+
+                        ApiIdlingResource.decrement()
+                    } catch (e: IOException) {
+                        ApiIdlingResource.decrement()
+                        withContext(Dispatchers.Main) {
+                            hideProgress()
+                            showSnack("Error: Falha na comunicação com o servidor")
+                        }
+                    }
+                }
             }
         }
 
@@ -134,6 +201,16 @@ class CreateReservationFragment : Fragment() {
 
     private fun showSnack(message: String) {
         Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showProgress() {
+        waitingResponseStateCreateLayout.visibility = View.VISIBLE
+        btnCreateBookingMaterialButton.visibility = View.GONE
+    }
+
+    private fun hideProgress() {
+        waitingResponseStateCreateLayout.visibility = View.GONE
+        btnCreateBookingMaterialButton.visibility = View.VISIBLE
     }
 
     private fun setupTextInputLayoutListener(textInputLayout: TextInputLayout) {
