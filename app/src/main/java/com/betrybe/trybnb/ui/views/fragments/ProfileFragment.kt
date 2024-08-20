@@ -6,24 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
-import com.betrybe.trybnb.common.ApiIdlingResource
-import com.betrybe.trybnb.data.models.AuthRequest
-import com.betrybe.trybnb.data.repository.OpenBookingService
 import com.betrybe.trybnb.databinding.FragmentProfileBinding
+import com.betrybe.trybnb.ui.viewmodels.ProfileFragmentViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private val bookingServiceApi = OpenBookingService.instance
+    private lateinit var viewModel: ProfileFragmentViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,6 +26,8 @@ class ProfileFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[ProfileFragmentViewModel::class.java]
+
         val view = binding.root
         return view
     }
@@ -46,50 +43,32 @@ class ProfileFragment : Fragment() {
             val password = binding.passwordInputProfile.editText?.text.toString()
 
             if (validateLoginProfile(login, password)) {
+                viewModel.login(login, password)
+            }
+        }
 
+        viewModel.message.observe(viewLifecycleOwner) { message ->
+            if (viewModel.success.value == true) {
+                showSnack(message)
+            }
+            if (viewModel.error.value == true) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Error")
+                    .setMessage(message)
+                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
+
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
+            if (loading) {
                 showProgress()
-
-                loginUser(login, password)
+            } else {
+                hideProgress()
             }
         }
     }
-
-    private fun loginUser(login: String, password: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                ApiIdlingResource.increment()
-
-                val bodyRequest = AuthRequest(login, password)
-                val response = bookingServiceApi.getAuth(bodyRequest)
-
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        val token = response.body()?.token
-
-                        if (token !== null) {
-                            hideProgress()
-                            showSnack("Login feito com sucesso!")
-                        } else {
-                            hideProgress()
-                            showSnack("Usuário ou senha inválidos")
-                        }
-                    } else {
-                        hideProgress()
-                        showSnack("Erro ao efetuar login")
-                    }
-
-                    ApiIdlingResource.decrement()
-                }
-            } catch (e: IOException) {
-                ApiIdlingResource.decrement()
-                withContext(Dispatchers.Main) {
-                    hideProgress()
-                    showSnack("Erro: Falha na comunicação com o servidor")
-                }
-            }
-        }
-    }
-
 
     private fun setupTextInputLayoutListener(textInputLayout: TextInputLayout) {
         textInputLayout.editText?.addTextChangedListener {
