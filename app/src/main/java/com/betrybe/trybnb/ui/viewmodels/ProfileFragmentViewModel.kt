@@ -9,28 +9,18 @@ import com.betrybe.trybnb.data.repository.OpenBookingService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfileFragmentViewModel : ViewModel() {
 
-    private val _error = MutableLiveData(false)
-    val error: LiveData<Boolean>
-        get() = _error
+    sealed class UiState {
+        data class Success(val message: String) : UiState()
+        data class Error(val message: String) : UiState()
+        data class Loading(val isLoading: Boolean) : UiState()
+    }
 
-    private val _loading = MutableLiveData(false)
-    val loading: LiveData<Boolean>
-        get() = _loading
-
-    private val _success = MutableLiveData(false)
-    val success: LiveData<Boolean>
-        get() = _success
-
-    private val _message = MutableLiveData("")
-    val message: LiveData<String>
-        get() = _message
-
-    private val _token = MutableLiveData("")
-    val token: LiveData<String>
-        get() = _token
+    private val _uiState = MutableLiveData<UiState>()
+    val uiState: LiveData<UiState> get() = _uiState
 
     private val bookingServiceApi = OpenBookingService.instance
 
@@ -38,39 +28,27 @@ class ProfileFragmentViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 ApiIdlingResource.increment()
-                _loading.postValue(true)
+                _uiState.postValue(UiState.Loading(true))
 
                 val bodyRequest = AuthRequest(login, password)
                 val response = bookingServiceApi.getAuth(bodyRequest)
 
-
-                if (response.isSuccessful) {
-                    val token = response.body()?.token
-
-                    if (token !== null) {
-                        _loading.postValue(false)
-                        _success.postValue(true)
-                        _token.postValue(token)
-                        _error.postValue(false)
-                        _message.postValue("Login feito com sucesso!")
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body()?.token != null) {
+                        _uiState.postValue(UiState.Success("Login feito com sucesso!"))
                     } else {
-                        _success.postValue(false)
-                        _loading.postValue(false)
-                        _error.postValue(true)
-                        _message.postValue("Usuário ou senha inválidos")
+                        _uiState.postValue(UiState.Error("Usuário ou senha inválidos"))
                     }
-                } else {
-                    _loading.postValue(false)
-                    _error.postValue(true)
-                    _message.postValue("Erro de conexão")
                 }
-
-                ApiIdlingResource.decrement()
             } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _uiState.postValue(UiState.Error("Erro: Falha na comunicação com o servidor"))
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    _uiState.postValue(UiState.Loading(false))
+                }
                 ApiIdlingResource.decrement()
-                _loading.postValue(false)
-                _error.postValue(true)
-                _message.postValue("Erro: Falha na comunicação com o servidor")
             }
         }
     }

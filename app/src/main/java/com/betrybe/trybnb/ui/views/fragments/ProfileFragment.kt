@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.viewModels
 import com.betrybe.trybnb.databinding.FragmentProfileBinding
 import com.betrybe.trybnb.ui.viewmodels.ProfileFragmentViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -18,7 +18,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: ProfileFragmentViewModel
+    private val viewModel: ProfileFragmentViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,10 +26,7 @@ class ProfileFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[ProfileFragmentViewModel::class.java]
-
-        val view = binding.root
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,31 +43,22 @@ class ProfileFragment : Fragment() {
                 viewModel.login(login, password)
             }
         }
+        observeViewModel()
+    }
 
-        viewModel.message.observe(viewLifecycleOwner) { message ->
-            if (viewModel.success.value == true) {
-                showSnack(message)
-            }
-            if (viewModel.error.value == true) {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Error")
-                    .setMessage(message)
-                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-                    .setCancelable(false)
-                    .show()
-            }
-        }
-
-        viewModel.loading.observe(viewLifecycleOwner) { loading ->
-            if (loading) {
-                showProgress()
-            } else {
-                hideProgress()
+    private fun observeViewModel() {
+        viewModel.uiState.observe(viewLifecycleOwner) { uiState ->
+            when (uiState) {
+                is ProfileFragmentViewModel.UiState.Success -> showSnack(uiState.message)
+                is ProfileFragmentViewModel.UiState.Loading -> progressState(uiState.isLoading)
+                is ProfileFragmentViewModel.UiState.Error -> showError(uiState.message)
             }
         }
     }
 
     private fun setupTextInputLayoutListener(textInputLayout: TextInputLayout) {
+        loginInputProfileFocus()
+
         textInputLayout.editText?.addTextChangedListener {
             if (!it.isNullOrEmpty()) {
                 textInputLayout.error = null
@@ -81,6 +69,15 @@ class ProfileFragment : Fragment() {
                 binding.passwordInputProfile.requestFocus()
             }
         }
+    }
+
+    private fun clearFields() {
+        binding.loginInputProfile.editText?.text?.clear()
+        binding.passwordInputProfile.editText?.text?.clear()
+    }
+
+    private fun loginInputProfileFocus() {
+        binding.loginInputProfile.requestFocus()
     }
 
     private fun validateLoginProfile(login: String, password: String): Boolean {
@@ -97,6 +94,25 @@ class ProfileFragment : Fragment() {
         }
 
         return isValid
+    }
+
+    private fun showError(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Error")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+            .setCancelable(false)
+            .show()
+        clearFields()
+        loginInputProfileFocus()
+    }
+
+    private fun progressState(isLoading: Boolean) {
+        if (isLoading) {
+            showProgress()
+        } else {
+            hideProgress()
+        }
     }
 
     private fun showProgress() {
