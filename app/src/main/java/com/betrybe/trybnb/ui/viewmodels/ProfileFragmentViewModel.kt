@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.net.UnknownHostException
 
 class ProfileFragmentViewModel : ViewModel() {
 
@@ -30,19 +32,26 @@ class ProfileFragmentViewModel : ViewModel() {
                 ApiIdlingResource.increment()
                 _uiState.postValue(UiState.Loading(true))
 
-                val bodyRequest = AuthRequest(login, password)
-                val response = bookingServiceApi.getAuth(bodyRequest)
+                val token = getCurrencyAuth(login, password)
 
                 withContext(Dispatchers.Main) {
-                    if (response.isSuccessful && response.body()?.token != null) {
+                    if (token != null) {
                         _uiState.postValue(UiState.Success("Login feito com sucesso!"))
                     } else {
                         _uiState.postValue(UiState.Error("Usuário ou senha inválidos"))
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: UnknownHostException) {
+                withContext(Dispatchers.Main) {
+                    _uiState.postValue(UiState.Error("Erro: Sem conexão com a internet"))
+                }
+            } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
                     _uiState.postValue(UiState.Error("Erro: Falha na comunicação com o servidor"))
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _uiState.postValue(UiState.Error("Erro: Ocorreu um erro inesperado"))
                 }
             } finally {
                 withContext(Dispatchers.Main) {
@@ -52,5 +61,16 @@ class ProfileFragmentViewModel : ViewModel() {
             }
         }
     }
+
+    private suspend fun getCurrencyAuth(login: String, password: String) : String? {
+        val response = bookingServiceApi.getAuth(AuthRequest(login, password))
+
+        return if (response.isSuccessful) {
+            response.body()?.token
+        } else {
+            throw HttpException(response)
+        }
+    }
+
 
 }
