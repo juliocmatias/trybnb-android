@@ -1,7 +1,6 @@
 package com.betrybe.trybnb.ui.views.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,10 +12,11 @@ import com.betrybe.trybnb.R
 import com.betrybe.trybnb.common.ApiIdlingResource
 import com.betrybe.trybnb.data.models.BookingData
 import com.betrybe.trybnb.data.models.BookingDates
-import com.betrybe.trybnb.data.repository.OpenBookingService
+import com.betrybe.trybnb.data.api.OpenBookingService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
