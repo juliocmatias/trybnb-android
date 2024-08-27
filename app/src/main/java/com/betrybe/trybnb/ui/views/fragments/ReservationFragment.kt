@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.betrybe.trybnb.R
 import com.betrybe.trybnb.common.ApiIdlingResource
 import com.betrybe.trybnb.data.models.BookingData
-import com.betrybe.trybnb.data.repository.OpenBookingService
+import com.betrybe.trybnb.data.api.OpenBookingService
 import com.betrybe.trybnb.ui.adapters.ReservationAdapter
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

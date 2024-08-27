@@ -1,4 +1,4 @@
-package com.betrybe.trybnb.data.repository
+package com.betrybe.trybnb.data.api
 
 import com.betrybe.trybnb.data.models.AuthRequest
 import com.betrybe.trybnb.data.models.BookingData
